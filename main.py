@@ -1,5 +1,7 @@
 import configparser
-from telethon import TelegramClient, events
+from telethon import TelegramClient
+
+from blueprints import register_all
 
 # DEBUG MODE CONTROL
 DEBUG = True
@@ -28,16 +30,10 @@ dbConnector = DBConnector(
     password=config['Database']['password']
 )
 
-genai_connector = GenAIConnector(api_key=config['OpenAI']['api_key'])
+genai_connector = GenAIConnector(api_key=config['OpenAI']['api_key'], debug=DEBUG)
 translator = Translator(api_key=config['DeepL']['api_key'])
 
-
-@client.on(events.NewMessage())
-async def my_event_handler(event):
-    if event.is_private:
-        await event.reply('This is a private chat.')
-
-
+register_all(client, dbConnector, genai_connector, translator)
 
 if __name__ == '__main__':
     client.run_until_disconnected()

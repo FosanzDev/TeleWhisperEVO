@@ -1,0 +1,1 @@
+from .Registrator import register_all
