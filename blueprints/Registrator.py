@@ -11,4 +11,5 @@ def register_all(client: TelegramClient,
                  db_connector: DBConnector,
                  genai_connector: GenAIConnector,
                  translator: Translator):
+    __Transcriptions(client, genai_connector)
     __Commands(client)
