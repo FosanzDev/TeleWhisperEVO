@@ -1,13 +1,18 @@
 import configparser
 from telethon import TelegramClient, events
-from telethon.events.common import EventBuilder, EventCommon
+
+# DEBUG MODE CONTROL
+DEBUG = True
 
 from database.DBConnector import DBConnector
 from genai.GenAIConnector import GenAIConnector
 from translation.Translator import Translator
 
 config = configparser.ConfigParser()
-config.read('env.ini')
+if DEBUG:
+    config.read('env.debug.ini')
+else:
+    config.read('env.ini')
 
 api_id = int(config['Telegram']['api_id'])
 api_hash = config['Telegram']['api_hash']
