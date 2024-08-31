@@ -1,0 +1,69 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Docker image
+      run: |
+        docker build -t myapp:latest .
+
+    - name: Save Docker image as tar file
+      run: |
+        docker save myapp:latest -o myapp.tar
+
+    - name: Create env.ini file
+      run: |
+        echo "[Telegram]" > env.ini
+        echo "api_id=${{ secrets.TELEGRAM_API_ID }}" >> env.ini
+        echo "api_hash=${{ secrets.TELEGRAM_API_HASH }}" >> env.ini
+        echo "bot_token=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> env.ini
+        echo "[Database]" >> env.ini
+        echo "host=${{ secrets.DATABASE_HOST }}" >> env.ini
+        echo "database=${{ secrets.DATABASE_NAME }}" >> env.ini
+        echo "port=${{ secrets.DATABASE_PORT }}" >> env.ini
+        echo "username=${{ secrets.DATABASE_USERNAME }}" >> env.ini
+        echo "password=${{ secrets.DATABASE_PASSWORD }}" >> env.ini
+        echo "[OpenAI]" >> env.ini
+        echo "api_key=${{ secrets.OPENAI_API_KEY }}" >> env.ini
+        echo "[DeepL]" >> env.ini
+        echo "api_key=${{ secrets.DEEPL_API_KEY }}" >> env.ini
+        echo "[RunPod]" >> env.ini
+        echo "api_key=${{ secrets.RUNPOD_API_KEY }}" >> env.ini
+        echo "url=${{ secrets.RUNPOD_URL }}" >> env.ini
+        echo "[Downloads]" >> env.ini
+        echo "host=${{ secrets.DOWNLOADS_HOST }}" >> env.ini
+        echo "port=${{ secrets.DOWNLOADS_PORT }}" >> env.ini
+
+    - name: Transfer tar file and env.ini to VPS
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        scp -i private_key myapp.tar env.ini $VPS_USER@$VPS_HOST:/home/$VPS_USER/
+
+    - name: Load and run Docker image on VPS
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+        VPS_HOST: ${{ secrets.VPS_HOST }}
+        VPS_USER: ${{ secrets.VPS_USER }}
+      run: |
+        ssh -i private_key $VPS_USER@$VPS_HOST << 'EOF'
+          docker load -i /home/$VPS_USER/myapp.tar
+          docker run -d -p 80:9091 --env-file /home/$VPS_USER/env.ini --name telewhisper_evo myapp:latest
+        EOF
