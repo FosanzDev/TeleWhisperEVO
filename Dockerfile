@@ -7,8 +7,8 @@ COPY requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg
+# Install ffmpeg and necessary libraries
+RUN apt-get update && apt-get install -y ffmpeg libavdevice58 libavfilter7 libavformat58 libavcodec58 libavutil56 libswscale5 libswresample3
 
 # Stage 2: Build the final image
 FROM python:3.12-slim
@@ -17,6 +17,7 @@ FROM python:3.12-slim
 COPY --from=base /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=base /usr/local/bin /usr/local/bin
 COPY --from=base /usr/bin/ffmpeg /usr/bin/ffmpeg
+COPY --from=base /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu
 
 # Copy the current directory contents into the container at /app
 COPY . /
