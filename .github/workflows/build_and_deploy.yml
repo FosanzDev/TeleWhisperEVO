@@ -3,7 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
@@ -64,5 +64,4 @@ jobs:
         username: ${{ secrets.prod_env.VPS_USER }}
         key: ${{ secrets.prod_env.VPS_SSH_KEY }}
         script: |
-          docker load -i /home/${{ secrets.prod_env.VPS_USER }}/myapp.tar
-          docker run -d -p 80:9091 --env-file /home/${{ secrets.prod_env.VPS_USER }}/env.ini --name telewhisper_evo myapp:latest
+          bash start-deploy.sh
