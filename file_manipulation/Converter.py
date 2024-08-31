@@ -15,6 +15,9 @@ async def auto_to_mp3(filename) -> (str, BinaryIO):
             file.export(f'{file_name}.mp3', format="mp3")
 
         else:
+            if file_extension == 'mp3':
+                return f'{file_name}.mp3', open(f'{file_name}.mp3', 'rb')
+
             file = AudioSegment.from_file(filename, format=file_extension)
             file.export(f'{file_name}.mp3', format="mp3")
 
