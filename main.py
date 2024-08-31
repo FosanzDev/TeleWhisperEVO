@@ -6,7 +6,7 @@ from file_manipulation import DownloadListener
 from genai.RunPodConnector import RunPodConnector
 
 # DEBUG MODE CONTROL
-DEBUG = True
+DEBUG = False
 
 from database.DBConnector import DBConnector
 from genai.GenAIConnector import GenAIConnector

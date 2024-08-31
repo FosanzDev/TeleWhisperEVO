@@ -16,52 +16,53 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
+    - name: Create env.ini file
+      run: |
+        echo "[Telegram]" > env.ini
+        echo "api_id=${{ secrets.TELEGRAM_API_ID }}" >> env.ini
+        echo "api_hash=${{ secrets.TELEGRAM_API_HASH }}" >> env.ini
+        echo "bot_token=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> env.ini
+        echo "[Database]" >> env.ini
+        echo "host=${{ secrets.DATABASE_HOST }}" >> env.ini
+        echo "database=${{ secrets.DATABASE_NAME }}" >> env.ini
+        echo "port=${{ secrets.DATABASE_PORT }}" >> env.ini
+        echo "username=${{ secrets.DATABASE_USERNAME }}" >> env.ini
+        echo "password=${{ secrets.DATABASE_PASSWORD }}" >> env.ini
+        echo "[OpenAI]" >> env.ini
+        echo "api_key=${{ secrets.OPENAI_API_KEY }}" >> env.ini
+        echo "[DeepL]" >> env.ini
+        echo "api_key=${{ secrets.DEEPL_API_KEY }}" >> env.ini
+        echo "[RunPod]" >> env.ini
+        echo "api_key=${{ secrets.RUNPOD_API_KEY }}" >> env.ini
+        echo "url=${{ secrets.RUNPOD_URL }}" >> env.ini
+        echo "[Downloads]" >> env.ini
+        echo "host=${{ secrets.VPS_HOST }}" >> env.ini
+        echo "port=${{ secrets.DOWNLOADS_PORT }}" >> env.ini
+
     - name: Build Docker image
       run: |
         docker build -t myapp:latest .
 
     - name: Save Docker image as tar file
       run: |
-        docker save myapp:latest -o myapp.tar
+        sudo docker save myapp:latest -o myapp.tar
+        sudo chmod 777 myapp.tar
 
-    - name: Create env.ini file
-      run: |
-        echo "[Telegram]" > env.ini
-        echo "api_id=${{ secrets.prod_env.TELEGRAM_API_ID }}" >> env.ini
-        echo "api_hash=${{ secrets.prod_env.TELEGRAM_API_HASH }}" >> env.ini
-        echo "bot_token=${{ secrets.prod_env.TELEGRAM_BOT_TOKEN }}" >> env.ini
-        echo "[Database]" >> env.ini
-        echo "host=${{ secrets.prod_env.DATABASE_HOST }}" >> env.ini
-        echo "database=${{ secrets.prod_env.DATABASE_NAME }}" >> env.ini
-        echo "port=${{ secrets.prod_env.DATABASE_PORT }}" >> env.ini
-        echo "username=${{ secrets.prod_env.DATABASE_USERNAME }}" >> env.ini
-        echo "password=${{ secrets.prod_env.DATABASE_PASSWORD }}" >> env.ini
-        echo "[OpenAI]" >> env.ini
-        echo "api_key=${{ secrets.prod_env.OPENAI_API_KEY }}" >> env.ini
-        echo "[DeepL]" >> env.ini
-        echo "api_key=${{ secrets.prod_env.DEEPL_API_KEY }}" >> env.ini
-        echo "[RunPod]" >> env.ini
-        echo "api_key=${{ secrets.prod_env.RUNPOD_API_KEY }}" >> env.ini
-        echo "url=${{ secrets.prod_env.RUNPOD_URL }}" >> env.ini
-        echo "[Downloads]" >> env.ini
-        echo "host=${{ secrets.prod_env.DOWNLOADS_HOST }}" >> env.ini
-        echo "port=${{ secrets.prod_env.DOWNLOADS_PORT }}" >> env.ini
-
-    - name: Transfer tar file and env.ini to VPS
+    - name: Transfer TAR file to VPS
       uses: appleboy/scp-action@v0.1.5
       with:
-        source: "myapp.tar,env.ini"
-        target: /home/${{ secrets.prod_env.VPS_USER }}/
-        host: ${{ secrets.prod_env.VPS_HOST }}
-        username: ${{ secrets.prod_env.VPS_USER }}
-        key: ${{ secrets.prod_env.VPS_SSH_KEY }}
+        source: "myapp.tar"
+        target: /home/${{ secrets.VPS_USER }}/
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
         overwrite: true
 
     - name: SSH to server and deploy
       uses: appleboy/ssh-action@v0.1.5
       with:
-        host: ${{ secrets.prod_env.VPS_HOST }}
-        username: ${{ secrets.prod_env.VPS_USER }}
-        key: ${{ secrets.prod_env.VPS_SSH_KEY }}
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
         script: |
-          bash start-deploy.sh
+          bash start_deploy.sh
