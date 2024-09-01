@@ -1,5 +1,8 @@
 import configparser
+
 from telethon import TelegramClient
+
+from telegram.ext import ApplicationBuilder
 
 from blueprints import register_all
 from file_manipulation import DownloadListener
@@ -42,9 +45,16 @@ runpod_connector = RunPodConnector(api_key=config['RunPod']['api_key'],
                                    runpod_url=config['RunPod']['url'],
                                    download_listener=download_listener)
 
+ptb_instance = ApplicationBuilder().token(config['Telegram']['bot_token']).build()
 
-register_all(client, dbConnector, genai_connector, translator, runpod_connector)
+register_all(client=client,
+             db_connector= dbConnector,
+             genai_connector= genai_connector,
+             translator= translator,
+             runpod_connector= runpod_connector,
+             ptb_instance= ptb_instance)
 
 if __name__ == '__main__':
     download_listener.run_in_thread()
+    ptb_instance.run_polling(poll_interval=2)
     client.run_until_disconnected()
