@@ -23,7 +23,7 @@ class RunPodConnector:
 
         return response.json()
 
-    async def transcribe(self, audio_file: str) -> None:
+    async def transcribe(self, audio_file: str) -> str:
         with_link = False
 
         # Check if audio_file is greater than 7MB

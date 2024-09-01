@@ -31,7 +31,10 @@ class __Transcriptions:
                     await client.edit_message(status_message, parse_mode='html',
                                               message='<i>Transcribing...</i>')
                     text = await runpod_connector.transcribe(mp3_filepath)
-                    await event.reply(text)
+                    await event.reply(text[:4095])
+                    for i in range(4095, len(text), 4095):
+                        await client.send_message(event.message.chat_id, text[i:i+4095])
+
                     await client.edit_message(status_message, parse_mode='html',
                                               message='<b>Done!</b>')
                     await file_manipulation.remove_file(mp3_filepath)
