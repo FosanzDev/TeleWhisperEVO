@@ -44,9 +44,7 @@ class DBConnector:
             "CREATE TABLE IF NOT EXISTS transactions ("
             "transaction_id SERIAL PRIMARY KEY,"
             "user_id INT,"
-            "currency TEXT,"
             "amount INT,"
-            "balance INT,"
             "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
             "FOREIGN KEY (user_id) REFERENCES users(user_id)"
             ");"
@@ -96,10 +94,10 @@ class DBConnector:
 
         self.conn.commit()
 
-    async def register_transaction(self, user_id, currency, amount, balance):
+    async def register_transaction(self, user_id, amount):
         self.cursor.execute(
-            "INSERT INTO transactions (user_id, currency, amount, balance) VALUES (%s, %s, %s, %s);",
-            (user_id, currency, amount, balance)
+            "INSERT INTO transactions (user_id, amount) VALUES (%s, %s);",
+            (user_id, amount)
         )
 
         self.cursor.execute(

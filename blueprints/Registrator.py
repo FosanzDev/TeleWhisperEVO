@@ -16,7 +16,8 @@ def register_all(client: TelegramClient,
                  genai_connector: GenAIConnector,
                  translator: Translator,
                  runpod_connector: RunPodConnector,
-                 ptb_instance: Application):
+                 ptb_instance: Application,
+                 payment_token: str):
     __Transcriptions(client, runpod_connector)
     __Commands(client, db_connector)
-    __Payments(ptb_instance)
+    __Payments(ptb_instance, db_connector, payment_token)

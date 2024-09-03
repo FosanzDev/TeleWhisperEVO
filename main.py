@@ -45,6 +45,7 @@ runpod_connector = RunPodConnector(api_key=config['RunPod']['api_key'],
                                    runpod_url=config['RunPod']['url'],
                                    download_listener=download_listener)
 
+payment_token = config['Payments']['default_token']
 ptb_instance = ApplicationBuilder().token(config['Telegram']['bot_token']).build()
 
 register_all(client=client,
@@ -52,7 +53,8 @@ register_all(client=client,
              genai_connector= genai_connector,
              translator= translator,
              runpod_connector= runpod_connector,
-             ptb_instance= ptb_instance)
+             ptb_instance= ptb_instance,
+             payment_token= payment_token)
 
 if __name__ == '__main__':
     download_listener.run_in_thread()
