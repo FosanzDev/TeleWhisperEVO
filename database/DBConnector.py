@@ -81,6 +81,13 @@ class DBConnector:
         )
         return self.cursor.fetchone()
 
+    async def get_credits(self, user_id) -> int:
+        self.cursor.execute(
+            "SELECT balance FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+        return self.cursor.fetchone()[0]
+
     async def register_action(self, user_id, action, length, cost):
         self.cursor.execute(
             "INSERT INTO actions (user_id, action, length, cost) VALUES (%s, %s, %s, %s);",

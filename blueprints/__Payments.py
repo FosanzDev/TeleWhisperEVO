@@ -1,3 +1,5 @@
+import messages
+
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 from telegram.ext import ContextTypes, CommandHandler, Application, MessageHandler, filters, PreCheckoutQueryHandler, \
     CallbackQueryHandler, ConversationHandler
@@ -28,7 +30,8 @@ class __Payments:
 
         async def tip_options(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text="Buy my a Burger King menu! 🍔🍟.\nYou can add custom tips inside the invoice!",
+                                           text=messages.tip,
+                                           parse_mode="Markdown",
                                            reply_markup=InlineKeyboardMarkup(
                                                [
                                                    [InlineKeyboardButton("1€ (some fries 🍟)",
