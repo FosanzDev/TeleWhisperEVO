@@ -1,4 +1,4 @@
-from telethon import TelegramClient, events
+from telethon.sync import TelegramClient, events
 import messages
 from database import DBConnector
 

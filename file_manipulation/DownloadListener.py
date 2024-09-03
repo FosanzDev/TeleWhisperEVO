@@ -1,6 +1,5 @@
 import threading
 import flask
-import os
 
 class DownloadListener:
 
