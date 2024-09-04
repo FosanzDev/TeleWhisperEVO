@@ -14,7 +14,7 @@ class __Commands:
         async def start(event: events.NewMessage.Event):
             if event.is_private:
                 user = await client.get_entity(event.sender_id)
-                await db_connector.register(
+                db_connector.register(
                     user_id = user.id,
                     user_name = user.username
                 )
@@ -43,7 +43,7 @@ class __Commands:
         @client.on(events.NewMessage(pattern='/credits'))
         async def credits(event: events.NewMessage.Event):
             if event.is_private:
-                user_credits = await db_connector.get_credits(event.sender_id)
+                user_credits = db_connector.get_credits(event.sender_id)
                 if user_credits is None:
                     await client.send_message(event.chat_id, messages.not_registered)
                 await client.send_message(event.chat_id, messages.credits.format(user_credits))
@@ -63,7 +63,7 @@ class __Commands:
         @client.on(events.NewMessage(pattern='/tw_credits'))
         async def tw_credits(event: events.NewMessage.Event):
             if not event.is_private:
-                user_credits = await db_connector.get_credits(event.sender_id)
+                user_credits = db_connector.get_credits(event.sender_id)
                 if user_credits is None:
                     await client.send_message(event.chat_id, messages.not_registered)
                 await event.reply(messages.credits.format(user_credits))

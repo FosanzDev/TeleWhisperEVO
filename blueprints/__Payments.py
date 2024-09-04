@@ -73,7 +73,7 @@ class __Payments:
             except Exception as e:
                 error_id = uuid4()
 
-                await db_connector.register_error(
+                db_connector.register_error(
                     error_id=error_id,
                     user_id=query.from_user.id,
                     action='invoice creation',
@@ -112,7 +112,7 @@ class __Payments:
 
             except Exception as e:
                 error_id = uuid4()
-                await db_connector.register_error(
+                db_connector.register_error(
                     error_id=error_id,
                     user_id=query.from_user.id,
                     action='invoice creation',
@@ -146,7 +146,7 @@ class __Payments:
             user_id = update.message.from_user.id
             try:
                 if update.message.successful_payment.invoice_payload == "credits":
-                    await db_connector.register_transaction(
+                    db_connector.register_transaction(
                         user_id=user_id,
                         amount=(update.message.successful_payment.total_amount * 18)
                     )
@@ -157,7 +157,7 @@ class __Payments:
 
             except Exception as e:
                 error_id = uuid4()
-                await db_connector.register_error(
+                db_connector.register_error(
                     error_id=error_id,
                     user_id=user_id,
                     action='payment processing',

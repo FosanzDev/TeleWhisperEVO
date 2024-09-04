@@ -78,7 +78,7 @@ class __Transcriptions:
 
         except Exception as e:
             error_id = uuid4()
-            await self.db_connector.register_error(
+            self.db_connector.register_error(
                 error_id=error_id,
                 user_id=event.message.sender_id,
                 action='conversion',
@@ -95,7 +95,7 @@ class __Transcriptions:
         duration = await file_manipulation.get_duration(mp3_filepath)
         if duration == -1:
             error_id = uuid4()
-            await self.db_connector.register_error(
+            self.db_connector.register_error(
                 error_id=error_id,
                 user_id=event.message.sender_id,
                 action='duration',
@@ -110,7 +110,7 @@ class __Transcriptions:
             return
 
         # Check if the user has enough credits
-        if await self.db_connector.get_credits(event.message.sender_id) < duration:
+        if self.db_connector.get_credits(event.message.sender_id) < duration:
             if group:
                 await self.client.send_message(event.message.chat_id, parse_mode='html',
                                             message='<b>Not enough credits!</b>. Add more in @tw_evo_bot')
@@ -131,7 +131,7 @@ class __Transcriptions:
             text = await self.runpod_connector.transcribe(mp3_filepath)
         except Exception as e:
             error_id = uuid4()
-            await self.db_connector.register_error(
+            self.db_connector.register_error(
                 error_id=error_id,
                 user_id=event.message.sender_id,
                 action='transcription',
@@ -163,7 +163,7 @@ class __Transcriptions:
         await file_manipulation.remove_file(mp3_filepath)
 
         # Deduct credits
-        await self.db_connector.register_action(
+        self.db_connector.register_action(
             user_id=event.message.sender_id,
             action='transcription',
             length=duration,
