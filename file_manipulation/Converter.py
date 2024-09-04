@@ -27,9 +27,9 @@ async def auto_to_mp3(filename) -> (str, BinaryIO):
         raise ValueError("Error converting file")
 
 async def write_to_file(text, filename):
-    with open('audio/' + filename, 'w') as f:
+    with open(filename, 'w') as f:
         f.write(text)
-    return 'audio/' + filename
+    return filename
 
 async def get_duration(filename):
     try:

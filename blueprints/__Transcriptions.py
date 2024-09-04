@@ -154,9 +154,13 @@ class __Transcriptions:
             await self.client.send_message(event.message.chat_id, text[i:i+4095])
 
         if len(text) > 4095:
-            await self.client.send_message(event.message.chat_id, "All-in-one transcription here!")
-            filepath = await file_manipulation.write_to_file(text, mp3_filepath.replace('.mp3', '.html'))
-            await self.client.send_file(event.message.chat_id, filepath, reply_to=media_message.id)
+            filepath = await file_manipulation.write_to_file(text, mp3_filepath.replace('.mp3', '.txt'))
+            await self.client.send_file(event.message.chat_id,
+                                        filepath,
+                                        reply_to=media_message.id,
+                                        caption="Big transcription!, here's a txt file with the full transcription ;D")
+
+            await file_manipulation.remove_file(filepath)
 
         await self.client.edit_message(status_message, parse_mode='html',
                                       message='<b>Done!</b>')
