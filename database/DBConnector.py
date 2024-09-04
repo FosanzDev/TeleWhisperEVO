@@ -35,7 +35,6 @@ class DBConnector:
             "action TEXT,"
             "length INT,"
             "cost INT,"
-            "status TEXT DEFAULT 'pending',"
             "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
             "FOREIGN KEY (user_id) REFERENCES users(user_id)"
             ");")
@@ -45,6 +44,17 @@ class DBConnector:
             "transaction_id SERIAL PRIMARY KEY,"
             "user_id INT,"
             "amount INT,"
+            "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+            "FOREIGN KEY (user_id) REFERENCES users(user_id)"
+            ");"
+        )
+
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS errors ("
+            "error_id UUID PRIMARY KEY,"
+            "user_id INT,"
+            "action TEXT,"
+            "error TEXT,"
             "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
             "FOREIGN KEY (user_id) REFERENCES users(user_id)"
             ");"
@@ -112,4 +122,11 @@ class DBConnector:
             (amount, user_id)
         )
 
+        self.conn.commit()
+
+    async def register_error(self, error_id, user_id, action, error):
+        self.cursor.execute(
+            "INSERT INTO errors (error_id, user_id, action, error) VALUES (%s, %s, %s, %s);",
+            (str(error_id), user_id, action, error)
+        )
         self.conn.commit()

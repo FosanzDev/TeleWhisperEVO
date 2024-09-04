@@ -26,6 +26,11 @@ async def auto_to_mp3(filename) -> (str, BinaryIO):
     except:
         raise ValueError("Error converting file")
 
+async def write_to_file(text, filename):
+    with open('audio/' + filename, 'w') as f:
+        f.write(text)
+    return 'audio/' + filename
+
 async def get_duration(filename):
     try:
         file = mutagen.File(filename)
@@ -34,5 +39,6 @@ async def get_duration(filename):
     except Exception:
         return -1
 
-async def remove_file(file_path):
-    os.remove(file_path)
+async def remove_file(*file_paths):
+    for file_path in file_paths:
+        os.remove(file_path)

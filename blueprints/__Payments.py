@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import messages
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
@@ -69,9 +71,20 @@ class __Payments:
                 return ConversationHandler.END
 
             except Exception as e:
-                print(e.with_traceback())
+                error_id = uuid4()
+
+                await db_connector.register_error(
+                    error_id=error_id,
+                    user_id=query.from_user.id,
+                    action='invoice creation',
+                    error=str(e)
+                )
+
                 await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text="Error creating invoice. Please contact @TeleWhisperSupport")
+                                               reply_markup='Markdown',
+                                               text=f"Error creating invoice!\n"
+                                                    f"Please contact @TeleWhisperSupport"
+                                                    f"Error ID: `{error_id}`")
 
                 await query.answer()
 
@@ -98,9 +111,19 @@ class __Payments:
                 return ConversationHandler.END
 
             except Exception as e:
-                print(e.with_traceback())
+                error_id = uuid4()
+                await db_connector.register_error(
+                    error_id=error_id,
+                    user_id=query.from_user.id,
+                    action='invoice creation',
+                    error=str(e)
+                )
+
                 await context.bot.send_message(chat_id=update.effective_chat.id,
-                                               text="Error creating invoice. Please contact @TeleWhisperSupport")
+                                               reply_markup='Markdown',
+                                               text=f"Error creating invoice!\n"
+                                                    f"Please contact @TeleWhisperSupport"
+                                                    f"Error ID: `{error_id}`")
 
                 await query.answer()
 
@@ -111,17 +134,17 @@ class __Payments:
                 # check the payload, is this from your bot?
                 if query.invoice_payload != "tip" and query.invoice_payload != "credits":
                     # answer False pre_checkout_query
-                    await query.answer(ok=False, error_message="Something went wrong...")
+                    await query.answer(ok=False, error_message="This invoice doesn't seems mine...")
 
                 else:
                     await query.answer(ok=True)
 
             except Exception as e:
-                await query.answer(ok=False, error_message="Something went wrong...")
+                await query.answer(ok=False, error_message="This invoice doesn't seems mine...")
 
         async def successful_payment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+            user_id = update.message.from_user.id
             try:
-                user_id = update.message.from_user.id
                 if update.message.successful_payment.invoice_payload == "credits":
                     await db_connector.register_transaction(
                         user_id=user_id,
@@ -133,8 +156,18 @@ class __Payments:
                 await update.message.reply_text("Thank you for your support! ❤️‍🔥")
 
             except Exception as e:
-                print(e)
-                await update.message.reply_text("Error processing payment. Please contact @TeleWhisperSupport for refund if necessary")
+                error_id = uuid4()
+                await db_connector.register_error(
+                    error_id=error_id,
+                    user_id=user_id,
+                    action='payment processing',
+                    error=str(e)
+                )
+
+                await update.message.reply_text(text="Error processing payment. "
+                                                f"Please contact @TeleWhisperSupport for refund if necessary"
+                                                f"Error ID: `{error_id}`",
+                                                parse_mode="Markdown")
 
         top_balance_handler = CommandHandler('top_balance', top_options, block=False, filters=filters.ChatType.PRIVATE)
         tip_balance_handler = CommandHandler('tip', tip_options, block=False, filters=filters.ChatType.PRIVATE)

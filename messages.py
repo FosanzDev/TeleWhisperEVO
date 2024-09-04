@@ -23,7 +23,7 @@ Then, you can start sending any multimedia file to the bot and it will transcrib
 If you have any questions, bug reporting, etc., feel free to ask in @Telewhispersupport. 🤗
 """
 
-credits = "You have {} credits left"
+credits = "You have {} credits left!\nAdd more clicking -> /top_balance"
 
 tip = """
 Buy my a Burger King menu! 🍔🍟.
