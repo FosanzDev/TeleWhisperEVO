@@ -77,35 +77,14 @@ class __Transcriptions:
             mp3_filepath, file_stream = await file_manipulation.auto_to_mp3(file_path)
 
         except Exception as e:
-            error_id = uuid4()
-            self.db_connector.register_error(
-                error_id=error_id,
-                user_id=event.message.sender_id,
-                action='conversion',
-                error=str(e)
-            )
-            await self.client.edit_message(status_message, parse_mode='Markdown',
-                                          message=f'There has been conversion error!\n'
-                                                  f'Explain cause at @TeleWhisperSupport.\n'
-                                                  f'Error ID: `{error_id}`')
+            await self.raise_error(status_message, event.message.sender_id, 'conversion', str(e))
             await file_manipulation.remove_file(file_path)
             return
 
         #Get duration of the audio file
         duration = await file_manipulation.get_duration(mp3_filepath)
         if duration == -1:
-            error_id = uuid4()
-            self.db_connector.register_error(
-                error_id=error_id,
-                user_id=event.message.sender_id,
-                action='duration',
-                error='Error getting duration'
-            )
-            await self.client.edit_message(status_message, parse_mode='Markdown',
-                                            message=f'There has been an analysis error!\n'
-                                                    f'Explain cause at @TeleWhisperSupport.\n'
-                                                    f'Error ID: `{error_id}`')
-
+            await self.raise_error(status_message, event.message.sender_id, 'duration', 'Error getting duration')
             await file_manipulation.remove_file(mp3_filepath, file_path)
             return
 
@@ -130,18 +109,7 @@ class __Transcriptions:
         try:
             text = await self.runpod_connector.transcribe(mp3_filepath)
         except Exception as e:
-            error_id = uuid4()
-            self.db_connector.register_error(
-                error_id=error_id,
-                user_id=event.message.sender_id,
-                action='transcription',
-                error=str(e)
-            )
-            await self.client.edit_message(status_message, parse_mode='Markdown',
-                                          message=f'There has been an error!\n'
-                                                  f'Explain cause at @TeleWhisperSupport.\n'
-                                                  f'Error ID: `{error_id}`')
-
+            await self.raise_error(status_message, event.message.sender_id, 'transcription', str(e))
             await file_manipulation.remove_file(mp3_filepath)
             return
 
@@ -175,3 +143,17 @@ class __Transcriptions:
         )
 
         await self.client.delete_messages(event.message.chat_id, [status_message.id])
+
+    async def raise_error(self, status_message, user_id, action, error):
+        error_id = uuid4()
+        self.db_connector.register_error(
+            error_id=error_id,
+            user_id=user_id,
+            action=action,
+            error=error
+        )
+        await self.client.edit_message(status_message, parse_mode='Markdown',
+                                    message=f'There has been an error!\n'
+                                            f'Explain cause at @TeleWhisperSupport.\n'
+                                            f'Error ID: `{error_id}`')
+        return
