@@ -107,10 +107,16 @@ class DBConnector:
 
     def register_action(self, user_id, action, length, cost):
         try:
+            user = self.get_user(user_id)
+            # Superuser and admin actions are free
+            if user[3] or user[4]:
+                cost = 0
+
             self.cursor.execute(
                 "INSERT INTO actions (user_id, action, length, cost) VALUES (%s, %s, %s, %s);",
                 (user_id, action, length, cost)
             )
+            
             self.cursor.execute(
                 "UPDATE users SET balance = balance - %s WHERE user_id = %s;",
                 (cost, user_id)
