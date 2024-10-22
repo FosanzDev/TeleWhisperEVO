@@ -4,12 +4,20 @@ from .__languages import languages
 class DBConnector:
 
     def __init__(self, host, port, database, username, password):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.username = username
+        self.password = password
+        self.connect()
+
+    def connect(self):
         self.conn = psycopg2.connect(
-            dbname=database,
-            user=username,
-            password=password,
-            host=host,
-            port=port,
+            dbname=self.database,
+            user=self.username,
+            password=self.password,
+            host=self.host,
+            port=self.port,
             sslmode="require"
         )
         self.cursor = self.conn.cursor()
@@ -70,84 +78,81 @@ class DBConnector:
             self.conn.rollback()
             raise e
 
-    def register(self, user_id, user_name):
+    def reconnect(self):
+        if self.conn.closed:
+            self.connect()
+
+    def execute_query(self, query, params):
+        self.reconnect()
         try:
-            self.cursor.execute(
-                "INSERT INTO users (user_id, user_name) VALUES (%s, %s) "
-                "ON CONFLICT (user_id) DO NOTHING;",
-                (user_id, user_name)
-            )
+            self.cursor.execute(query, params)
+            self.conn.commit()
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            self.connect()
+            self.cursor.execute(query, params)
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
             raise e
 
-    def get_user(self, user_id) -> tuple | None:
+    def fetch_query(self, query, params):
+        self.reconnect()
         try:
-            self.cursor.execute(
-                "SELECT * FROM users WHERE user_id = %s;",
-                (user_id,)
-            )
+            self.cursor.execute(query, params)
+            return self.cursor.fetchone()
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            self.connect()
+            self.cursor.execute(query, params)
             return self.cursor.fetchone()
         except Exception as e:
             self.conn.rollback()
             raise e
 
+    def register(self, user_id, user_name):
+        self.execute_query(
+            "INSERT INTO users (user_id, user_name) VALUES (%s, %s) "
+            "ON CONFLICT (user_id) DO NOTHING;",
+            (user_id, user_name)
+        )
+
+    def get_user(self, user_id) -> tuple | None:
+        return self.fetch_query(
+            "SELECT * FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+
     def get_credits(self, user_id) -> int:
-        try:
-            self.conn.commit()
-            self.cursor.execute(
-                "SELECT balance FROM users WHERE user_id = %s;",
-                (user_id,)
-            )
-            return self.cursor.fetchone()[0]
-        except Exception as e:
-            self.conn.rollback()
-            raise e
+        result = self.fetch_query(
+            "SELECT balance FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+        return result[0] if result else 0
 
     def register_action(self, user_id, action, length, cost):
-        try:
-            user = self.get_user(user_id)
-            # Superuser and admin actions are free
-            if user[3] or user[4]:
-                cost = 0
-
-            self.cursor.execute(
-                "INSERT INTO actions (user_id, action, length, cost) VALUES (%s, %s, %s, %s);",
-                (user_id, action, length, cost)
-            )
-            
-            self.cursor.execute(
-                "UPDATE users SET balance = balance - %s WHERE user_id = %s;",
-                (cost, user_id)
-            )
-            self.conn.commit()
-        except Exception as e:
-            self.conn.rollback()
-            raise e
+        user = self.get_user(user_id)
+        if user and (user[3] or user[4]):
+            cost = 0
+        self.execute_query(
+            "INSERT INTO actions (user_id, action, length, cost) VALUES (%s, %s, %s, %s);",
+            (user_id, action, length, cost)
+        )
+        self.execute_query(
+            "UPDATE users SET balance = balance - %s WHERE user_id = %s;",
+            (cost, user_id)
+        )
 
     def register_transaction(self, user_id, amount):
-        try:
-            self.cursor.execute(
-                "INSERT INTO transactions (user_id, amount) VALUES (%s, %s);",
-                (user_id, amount)
-            )
-            self.cursor.execute(
-                "UPDATE users SET balance = balance + %s WHERE user_id = %s;",
-                (amount, user_id)
-            )
-            self.conn.commit()
-        except Exception as e:
-            self.conn.rollback()
-            raise e
+        self.execute_query(
+            "INSERT INTO transactions (user_id, amount) VALUES (%s, %s);",
+            (user_id, amount)
+        )
+        self.execute_query(
+            "UPDATE users SET balance = balance + %s WHERE user_id = %s;",
+            (amount, user_id)
+        )
 
     def register_error(self, error_id, user_id, action, error):
-        try:
-            self.cursor.execute(
-                "INSERT INTO errors (error_id, user_id, action, error) VALUES (%s, %s, %s, %s);",
-                (str(error_id), user_id, action, error)
-            )
-            self.conn.commit()
-        except Exception as e:
-            self.conn.rollback()
-            raise e
+        self.execute_query(
+            "INSERT INTO errors (error_id, user_id, action, error) VALUES (%s, %s, %s, %s);",
+            (str(error_id), user_id, action, error)
+        )
