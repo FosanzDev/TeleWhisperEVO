@@ -28,7 +28,10 @@ class __Commands:
         @client.on(events.NewMessage(pattern='/help'))
         async def help(event: events.NewMessage.Event):
             if event.is_private:
-                await client.send_message(event.chat_id, messages.help)
+                if db_connector.is_privileged(event.sender_id):
+                    await client.send_message(event.chat_id, messages.superuserHelp)
+                else:
+                    await client.send_message(event.chat_id, messages.help)
 
         @client.on(events.NewMessage(pattern='/intro'))
         async def intro(event: events.NewMessage.Event):

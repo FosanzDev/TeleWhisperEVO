@@ -16,36 +16,38 @@ class __Payments:
 
         async def top_options(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text="Select an option!\nYou can also leave a tip inside the invoice!",
-                                           reply_markup=InlineKeyboardMarkup(
-                                               [
-                                                   [InlineKeyboardButton("1.800 CR\n(1€ / 30 m)",
-                                                                         callback_data="top_balance-1800"),
-                                                     InlineKeyboardButton("3.600 CR\n(2€ / 1 H)",
-                                                                         callback_data="top_balance-3600")],
-                                                   [InlineKeyboardButton("9.000 CR\n(5€ / 2.5 h)",
-                                                                         callback_data="top_balance-9000"),
-                                                    InlineKeyboardButton("18.000 CR\n(10€ / 5 h)",
-                                                                         callback_data="top_balance-18000")]
-                                               ]
-                                           ))
+                                           text="This is actually free now! 🎉\nTo become a SuperUser, refer to @Fosanz")
+                                           #text="Select an option!\nYou can also leave a tip inside the invoice!",
+                                           #reply_markup=InlineKeyboardMarkup(
+                                           #    [
+                                           #        [InlineKeyboardButton("1.800 CR\n(1€ / 30 m)",
+                                           #                              callback_data="top_balance-1800"),
+                                           #          InlineKeyboardButton("3.600 CR\n(2€ / 1 H)",
+                                           #                              callback_data="top_balance-3600")],
+                                           #        [InlineKeyboardButton("9.000 CR\n(5€ / 2.5 h)",
+                                           #                              callback_data="top_balance-9000"),
+                                           #         InlineKeyboardButton("18.000 CR\n(10€ / 5 h)",
+                                           #                              callback_data="top_balance-18000")]
+                                           #    ]
+                                           #))
 
         async def tip_options(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text=messages.tip,
-                                           parse_mode="Markdown",
-                                           reply_markup=InlineKeyboardMarkup(
-                                               [
-                                                   [InlineKeyboardButton("1€ (some fries 🍟)",
-                                                                         callback_data="tip-100"),
-                                                     InlineKeyboardButton("5€ (1 BK menu 🍔)",
-                                                                         callback_data="tip-500")],
-                                                   [InlineKeyboardButton("10€ (1 Special BK menu 🍔🍟)",
-                                                                         callback_data="tip-1000"),
-                                                    InlineKeyboardButton("20€ (Dinner for 2 🍔🍔🍟)",
-                                                                         callback_data="tip-2000")]
-                                               ]
-                                           ))
+                                           text=messages.tip
+                                           #parse_mode="Markdown",
+                                           #reply_markup=InlineKeyboardMarkup(
+                                           #    [
+                                           #        [InlineKeyboardButton("1€ (some fries 🍟)",
+                                           #                              callback_data="tip-100"),
+                                           #          InlineKeyboardButton("5€ (1 BK menu 🍔)",
+                                           #                              callback_data="tip-500")],
+                                           #        [InlineKeyboardButton("10€ (1 Special BK menu 🍔🍟)",
+                                           #                              callback_data="tip-1000"),
+                                           #         InlineKeyboardButton("20€ (Dinner for 2 🍔🍔🍟)",
+                                           #                              callback_data="tip-2000")]
+                                           #    ]
+                                           #)
+                                            )
 
 
         async def top_balance(update: Update, context: ContextTypes.DEFAULT_TYPE):

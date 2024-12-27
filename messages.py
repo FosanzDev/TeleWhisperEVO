@@ -26,7 +26,6 @@ If you have any questions, bug reporting, etc., feel free to ask in @Telewhisper
 credits = "You have {} credits left!\nAdd more clicking -> /top_balance"
 
 tip = """
-Buy my a Burger King menu! 🍔🍟.
 Since fees are high, I would appreciate if you tip me over the following methods:
 
 PAYPAL: https://paypal.me/FosanzDev 💳
@@ -36,8 +35,6 @@ Or with crypto:
 TON / NOT: `UQDYvzCEWesgRPqs9Ft4UuzGo1L1EydHmziHfTJa-Mp3CS8b` 🪙
 
 If I get enough donations, I'll be able to keep focus on adding new features and improving the bot. 🙏
-
-If you want to tip me through the bot, use the following options. You can add custom tips inside the invoice! 🤗
 """
 
 group_help = """
@@ -47,20 +44,6 @@ group_help = """
 /tw_credits - Show the credits you have left
 
 If you want to top up your credits, use /top_credits in @tw_evo_bot
-"""
-
-adminHelp = help + """
-
----- ADMIN COMMANDS ----
-/ban - Ban a user
-/unban - Unban a user
-/banlist - Show the list of banned users
-/setsuperuser - Set a user as superuser
-/removesuperuser - Remove a user from the superuser list
-/superuserlist - Show the list of superusers
-
-You've been tagged as an admin.
-This means you can use all commands.
 """
 
 superuserHelp = help + """
@@ -126,14 +109,4 @@ NOTE: The bot is still in development, so some features may not work as intended
 
 not_registered = """
 You're not registered in the bot's database. Please type /start to register.
-"""
-
-modeNote = """
-___Select a mode from the options below:___\n
-*Use free mode* - The bot will use the free mode, which is slower and less accurate, but free.\n
-*Use paid mode* - The bot will use the paid mode, which is faster and more accurate, but costs 1 credit per second.
-"""
-
-errorMessage = """
-An error occurred while processing your request.\nYou didn't get charged for this, just try again.\nIf the error persists, join @telewhispersupport for help.
 """

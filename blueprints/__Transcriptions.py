@@ -88,14 +88,18 @@ class __Transcriptions:
             await file_manipulation.remove_file(mp3_filepath, file_path)
             return
 
-        # Check if the user has enough credits
-        if self.db_connector.get_credits(event.message.sender_id) < duration:
+        is_privileged = self.db_connector.is_privileged(event.message.sender_id)
+
+        # Changed behaviour to allow transcription of files up to 15 minutes
+        # If the file is longer than 15 minutes, only privileged users can transcribe it
+        if duration > 900 and not is_privileged:
+        # if self.db_connector.get_credits(event.message.sender_id) < duration:
             if group:
                 await self.client.send_message(event.message.chat_id, parse_mode='html',
-                                            message='<b>Not enough credits!</b>. Add more in @tw_evo_bot')
+                                            message='<b>Not a SuperUser!</b>. To transcribe more than 15 minutes, contact @Fosanz')
             else:
                 await self.client.edit_message(status_message, parse_mode='html',
-                                           message='<b>Not enough credits!</b>. Add more by clicking -> /top_balance!')
+                                           message='<b>Not a SuperUser!</b>. To transcribe more than 15 minutes, contact @Fosanz')
             await file_manipulation.remove_file(mp3_filepath, file_path)
             return
 

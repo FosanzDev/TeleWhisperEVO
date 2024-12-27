@@ -121,6 +121,10 @@ class DBConnector:
             (user_id,)
         )
 
+    def is_privileged(self, user_id) -> bool:
+        user = self.get_user(user_id)
+        return user[3] or user[4]
+
     def get_credits(self, user_id) -> int:
         result = self.fetch_query(
             "SELECT balance FROM users WHERE user_id = %s;",
@@ -129,8 +133,7 @@ class DBConnector:
         return result[0] if result else 0
 
     def register_action(self, user_id, action, length, cost):
-        user = self.get_user(user_id)
-        if user and (user[3] or user[4]):
+        if self.is_privileged(user_id):
             cost = 0
         self.execute_query(
             "INSERT INTO actions (user_id, action, length, cost) VALUES (%s, %s, %s, %s);",
