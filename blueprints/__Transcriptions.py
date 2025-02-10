@@ -109,7 +109,7 @@ class __Transcriptions:
 
         # Transcribe the audio file
         await self.client.edit_message(status_message, parse_mode='html',
-                                    message='<i>Transcribing...</i>')
+                                    message='<i>Transcribing. Cold instance starts might take up to 30 seconds...</i>')
         try:
             text = await self.runpod_connector.transcribe(mp3_filepath)
         except Exception as e:
@@ -136,6 +136,10 @@ class __Transcriptions:
 
         await self.client.edit_message(status_message, parse_mode='html',
                                       message='<b>Done!</b>')
+
+        await self.client.send_message(event.message.chat_id, parse_mode='html',
+                                       message="Hey! The bot is <i>free</i>, but increased usage is not rentable for the developer.<br>"
+                                               "Consider donating to keep the service running!")
         await file_manipulation.remove_file(mp3_filepath)
 
         # Deduct credits
