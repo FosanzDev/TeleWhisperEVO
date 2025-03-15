@@ -67,11 +67,14 @@ class DBConnector:
                 "language TEXT PRIMARY KEY,"
                 "name TEXT"
                 ");")
-            for iso_code, name in languages.items():
+            for lang in languages.keys():
+                if lang == 'none':
+                    continue
+                name = languages[lang].get('label')
                 self.cursor.execute(
                     "INSERT INTO languages (language, name) VALUES (%s, %s) "
                     "ON CONFLICT (language) DO NOTHING;",
-                    (iso_code, name)
+                    (lang, name)
                 )
             self.conn.commit()
         except Exception as e:
@@ -158,4 +161,17 @@ class DBConnector:
         self.execute_query(
             "INSERT INTO errors (error_id, user_id, action, error) VALUES (%s, %s, %s, %s);",
             (str(error_id), user_id, action, error)
+        )
+
+    def get_language(self, user_id) -> str:
+        result = self.fetch_query(
+            "SELECT language FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+        return result[0] if result else 'none'
+
+    def set_language(self, user_id, language):
+        self.execute_query(
+            "UPDATE users SET language = %s WHERE user_id = %s;",
+            (language, user_id)
         )

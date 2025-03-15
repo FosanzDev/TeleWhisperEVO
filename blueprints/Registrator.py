@@ -6,6 +6,7 @@ from genai.RunPodConnector import RunPodConnector
 from .__Transcriptions import __Transcriptions
 from .__Commands import __Commands
 from .__Payments import __Payments
+from .__LanguageManagement import __LanguageManagement
 from database import DBConnector
 from genai.GenAIConnector import GenAIConnector
 from translation import Translator
@@ -21,3 +22,4 @@ def register_all(client: TelegramClient,
     __Transcriptions(client, runpod_connector, db_connector)
     __Commands(client, db_connector)
     __Payments(ptb_instance, db_connector, payment_token)
+    __LanguageManagement(client, ptb_instance, db_connector)
