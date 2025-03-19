@@ -1,28 +1,32 @@
 from uuid import uuid4
 
+from telegram.ext import Application
 from telethon.sync import TelegramClient, events
 
 import telethon.utils
 import file_manipulation
+from blueprints.__Translations import assign_translation_possibility
 from blueprints.utils import get_file_name
 from database import DBConnector
 
 from genai.RunPodConnector import RunPodConnector
 
-
 class __Transcriptions:
     def __init__(self, client: TelegramClient,
+                 ptb_instance: Application,
                  runpod_connector: RunPodConnector,
                  db_connector: DBConnector):
 
         self.client = client
+        self.ptb_instance = ptb_instance
         self.runpod_connector = runpod_connector
         self.db_connector = db_connector
+        self.contexts = {}
 
         @client.on(events.NewMessage(pattern='/tw_transcribe'))
         async def group_transcribe(event: events.NewMessage.Event):
             if event.is_private:
-                await event.reply('Send me an audio file to transcribe!')
+                await event.reply('Send me any multimedia file to transcribe!')
             else:
                 # Get the replying message:
                 reply_message = await event.get_reply_message()
@@ -90,7 +94,7 @@ class __Transcriptions:
 
         is_privileged = self.db_connector.is_privileged(event.message.sender_id)
 
-        # Changed behaviour to allow transcription of files up to 15 minutes
+        # Changed behavior to allow transcription of files up to 15 minutes
         # If the file is longer than 15 minutes, only privileged users can transcribe it
         if duration > 900 and not is_privileged:
         # if self.db_connector.get_credits(event.message.sender_id) < duration:
@@ -118,7 +122,7 @@ class __Transcriptions:
             return
 
         # Send the transcription in chunks
-        await self.client.send_message(reply_to=media_message.id,
+        txt_message = await self.client.send_message(reply_to=media_message.id,
                                        entity=media_message.chat_id,
                                        message=text[:4095])
 
@@ -127,12 +131,15 @@ class __Transcriptions:
 
         if len(text) > 4095:
             filepath = await file_manipulation.write_to_file(text, mp3_filepath.replace('.mp3', '.txt'))
-            await self.client.send_file(event.message.chat_id,
+            txt_message = await self.client.send_file(event.message.chat_id,
                                         filepath,
                                         reply_to=media_message.id,
                                         caption="Big transcription!, here's a txt file with the full transcription ;D")
 
             await file_manipulation.remove_file(filepath)
+
+        lang = self.db_connector.get_language(event.message.sender_id)
+        await assign_translation_possibility(self, lang, event.chat_id, txt_message.id)
 
         await self.client.edit_message(status_message, parse_mode='html',
                                       message='<b>Done!</b>')
