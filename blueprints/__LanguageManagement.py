@@ -20,14 +20,6 @@ class __LanguageManagement:
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text="Select a language for translations",
                                            reply_markup=InlineKeyboardMarkup(await gen_lang_buttons(lang_code)))
-            context = telegram.ext.CallbackContext(
-                ptb_instance
-            )
-
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="Select a language for translations"
-            )
 
         async def callback_langchange(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query = update.callback_query
@@ -37,8 +29,9 @@ class __LanguageManagement:
                 await query.answer()
                 return
 
+            languagename = f"{languages[lang]['label']} {languages[lang]['flag']}"
             db_connector.set_language(query.from_user.id, lang)
-            await query.edit_message_text(text="Select a language for translations",
+            await query.edit_message_text(text=f"Default language set to {languagename}!",
                                           reply_markup=InlineKeyboardMarkup(await gen_lang_buttons(lang)))
 
         async def __callback_pagechange(update: Update, context: ContextTypes.DEFAULT_TYPE):

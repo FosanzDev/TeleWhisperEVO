@@ -109,7 +109,7 @@ async def assign_translation_possibility(self,
     ]
     if lang != 'none':
         lang_data = languages[lang]
-        keyboard.insert(0, [InlineKeyboardButton(f"Translate to {lang_data['label']}", callback_data='trans_' + lang)])
+        keyboard[0].insert(0, InlineKeyboardButton(f"Translate to {lang_data['label']}", callback_data='trans_' + lang))
 
     context = CallbackContext(self.ptb_instance)
     await context.bot.edit_message_reply_markup(
