@@ -47,7 +47,7 @@ class __Transcriptions:
                                                   media_message=reply_message,
                                                   status_message=status_message,
                                                   #TODO: Add more providers
-                                                  provider_key='runpod',
+                                                  provider_key='local_whisper',
                                                   file_path=file_path,
                                                   group=True)
 
@@ -69,7 +69,7 @@ class __Transcriptions:
                                               media_message=event.message,
                                               status_message=status_message,
                                               #TODO: Add more provider keys
-                                              provider_key='runpod',
+                                              provider_key='local_whisper',
                                               file_path=file_path,
                                               group=False)
 

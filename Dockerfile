@@ -12,6 +12,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /
 COPY env.ini /env.ini
 
+# Check the ini file and conditionally install openai-whisper if [Local] use_local_whisper=True
+RUN if grep -q "^\[Local\]" /env.ini && grep -q "^use_local_whisper=True" /env.ini; then \
+    pip install --no-cache-dir openai-whisper; \
+fi
+
 # Make port 9091 available to the world outside this container
 EXPOSE 9091
 

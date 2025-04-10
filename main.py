@@ -8,6 +8,7 @@ from telegram.ext import ApplicationBuilder
 from blueprints import register_all
 from file_manipulation import DownloadListener
 from providers import ProviderManager
+from providers.transcriptions.local_whisper_transcriber import LocalWhisperTranscriber
 from providers.transcriptions.runpod_transcriber import RunPodTranscriber
 
 # DEBUG MODE CONTROL
@@ -57,6 +58,12 @@ provider_manager.add_translation_provider(
     'deepl',
     DeepLTranslator(api_key=config['DeepL']['api_key'])
 )
+
+if config['Local']['use_local_whisper'] == 'True':
+    provider_manager.add_transcription_provider(
+        'local_whisper',
+        LocalWhisperTranscriber('tiny')
+    )
 
 payment_token = config['Payments']['default_token']
 ptb_instance = ApplicationBuilder().token(config['Telegram']['bot_token']).build()

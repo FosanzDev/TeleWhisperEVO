@@ -1,5 +1,3 @@
-from typing import BinaryIO
-
 from openai import AsyncOpenAI
 
 from . import TranscriptionProvider
