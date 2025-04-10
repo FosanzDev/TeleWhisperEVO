@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardMarkup, Update, InlineKeyboardButton, Message
+from telegram import InlineKeyboardMarkup, Update, InlineKeyboardButton
 from telegram.ext import Application, ContextTypes, CallbackContext, CallbackQueryHandler
 from telethon import TelegramClient
 
