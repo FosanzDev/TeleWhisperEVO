@@ -5,24 +5,30 @@ from telethon import TelegramClient
 import file_manipulation
 from blueprints.__LanguageManagement import gen_lang_buttons
 from database import DBConnector, languages
-from translation import Translator
-
+from providers import ProviderManager
+from providers.exceptions import ProviderException
 
 class __Translations:
 
     def __init__(self, client: TelegramClient,
-               ptb_instance: Application,
-               db_connector: DBConnector,
-               translator: Translator):
+                 ptb_instance: Application,
+                 db_connector: DBConnector,
+                 provider_manager: ProviderManager):
 
         self.client = client
         self.ptb_instance = ptb_instance
         self.db_connector = db_connector
-        self.translator = translator
+        self.provider_manager = provider_manager
 
         async def __callback_translate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            query = update.callback_query # No possibility for the message to be MaybeInaccessibleMessage
+            query = update.callback_query  # No possibility for the message to be MaybeInaccessibleMessage
             lang = query.data.split('_')[-1]
+            provider_key = 'deepl'
+            try:
+                translator = provider_manager.get_translation_provider(provider_key)
+            except ProviderException:
+                await context.bot.send_message(chat_id=query.from_user.id, text="Invalid provider key for translation! - Contact developer")
+                return
             translation: str
             if query.message.document:
                 txt = await context.bot.get_file(query.message.document.file_id)
@@ -42,7 +48,7 @@ class __Translations:
                     f.seek(0)
                     f.write(translation)
                     f.truncate()
-                    
+
                     f.seek(0)
                     await context.bot.send_document(
                         chat_id=query.from_user.id,
@@ -60,11 +66,10 @@ class __Translations:
                 )
                 translation = await translator.translate(text, lang)
                 await context.bot.edit_message_text(
-                    chat_id=query.from_user.id, 
+                    chat_id=query.from_user.id,
                     message_id=status.id,
                     text=f"Translated to {languages[lang]['label']}\n\n{translation}"
                 )
-
 
             db_lang = self.db_connector.get_language(query.from_user.id)
             if lang == db_lang:
@@ -78,7 +83,6 @@ class __Translations:
                 message_id=query.message.id)
             await query.answer()
 
-
         async def __callback_show_all_langs(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query = update.callback_query
             await query.edit_message_reply_markup(
@@ -90,14 +94,14 @@ class __Translations:
             query = update.callback_query
             page = int(query.data.split('_')[-1])
             await query.edit_message_reply_markup(
-                reply_markup=InlineKeyboardMarkup(await gen_lang_buttons(show_selection=False, with_callback='trans_', page=page))
+                reply_markup=InlineKeyboardMarkup(
+                    await gen_lang_buttons(show_selection=False, with_callback='trans_', page=page))
             )
             await query.answer()
 
         ptb_instance.add_handler(CallbackQueryHandler(__callback_show_all_langs, 'trans_all', block=False))
         ptb_instance.add_handler(CallbackQueryHandler(__callback_translate, 'trans_*', block=False))
         ptb_instance.add_handler(CallbackQueryHandler(__callback_pagechange, 'page_trans_*', block=False))
-
 
 
 async def assign_translation_possibility(self,

@@ -4,8 +4,10 @@ import aiohttp
 import asyncio
 
 from file_manipulation import DownloadListener
+from . import TranscriptionProvider
 
-class RunPodConnector:
+
+class RunPodTranscriber(TranscriptionProvider):
     def __init__(self, api_key: str, runpod_url: str, download_listener: DownloadListener):
         self.api_key = api_key
         self.runpod_url = runpod_url

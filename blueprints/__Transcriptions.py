@@ -9,17 +9,20 @@ from blueprints.__Translations import assign_translation_possibility
 from blueprints.utils import get_file_name
 from database import DBConnector
 
-from genai.RunPodConnector import RunPodConnector
+from providers import ProviderManager
+from providers.transcriptions import TranscriptionProvider
+from providers.exceptions import ProviderException
+
 
 class __Transcriptions:
     def __init__(self, client: TelegramClient,
                  ptb_instance: Application,
-                 runpod_connector: RunPodConnector,
+                 provider_manager: ProviderManager,
                  db_connector: DBConnector):
 
         self.client = client
         self.ptb_instance = ptb_instance
-        self.runpod_connector = runpod_connector
+        self.provider_manager = provider_manager
         self.db_connector = db_connector
         self.contexts = {}
 
@@ -43,6 +46,8 @@ class __Transcriptions:
                             await self.transcribe(event=event,
                                                   media_message=reply_message,
                                                   status_message=status_message,
+                                                  #TODO: Add more providers
+                                                  provider_key='runpod',
                                                   file_path=file_path,
                                                   group=True)
 
@@ -63,6 +68,8 @@ class __Transcriptions:
                         await self.transcribe(event=event,
                                               media_message=event.message,
                                               status_message=status_message,
+                                              #TODO: Add more provider keys
+                                              provider_key='runpod',
                                               file_path=file_path,
                                               group=False)
 
@@ -72,8 +79,15 @@ class __Transcriptions:
     async def transcribe(self, event: events.NewMessage.Event,
                          media_message,
                          status_message,
+                         provider_key: str,
                          group: bool,
                          file_path: str):
+
+        try:
+            provider: TranscriptionProvider = self.provider_manager.get_transcription_provider(provider_key)
+        except ProviderException:
+            await self.raise_error(status_message, event.message.sender_id, 'provider', 'Invalid provider key')
+            return
 
         await self.client.edit_message(status_message, parse_mode='html',
                                       message='<i>Converting...</i>')
@@ -115,7 +129,7 @@ class __Transcriptions:
         await self.client.edit_message(status_message, parse_mode='html',
                                     message='<i>Transcribing. Cold instance starts might take up to 30 seconds...</i>')
         try:
-            text = await self.runpod_connector.transcribe(mp3_filepath)
+            text = await provider.transcribe(mp3_filepath)
         except Exception as e:
             await self.raise_error(status_message, event.message.sender_id, 'transcription', str(e))
             await file_manipulation.remove_file(mp3_filepath)

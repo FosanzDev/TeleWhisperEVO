@@ -7,14 +7,15 @@ from telegram.ext import ApplicationBuilder
 
 from blueprints import register_all
 from file_manipulation import DownloadListener
-from genai.RunPodConnector import RunPodConnector
+from providers import ProviderManager
+from providers.transcriptions.runpod_transcriber import RunPodTranscriber
 
 # DEBUG MODE CONTROL
 DEBUG = False
 
 from database.DBConnector import DBConnector
-from genai.GenAIConnector import GenAIConnector
-from translation.Translator import Translator
+from providers.transcriptions.openai_transcriber import OpenAITranscriber
+from providers.translations.deepl_translator import DeepLTranslator
 
 config = configparser.ConfigParser()
 if DEBUG:
@@ -35,25 +36,34 @@ dbConnector = DBConnector(
     username=config['Database']['username'],
     password=config['Database']['password']
 )
-
-genai_connector = GenAIConnector(api_key=config['OpenAI']['api_key'], debug=DEBUG)
-translator = Translator(api_key=config['DeepL']['api_key'])
-
 download_listener = DownloadListener(host_ip=config['Downloads']['host'],
                                      port=int(config['Downloads']['port']))
 
-runpod_connector = RunPodConnector(api_key=config['RunPod']['api_key'],
-                                   runpod_url=config['RunPod']['url'],
-                                   download_listener=download_listener)
+
+provider_manager = ProviderManager()
+provider_manager.add_transcription_provider(
+    'openai',
+    OpenAITranscriber(api_key=config['OpenAI']['api_key'], debug=DEBUG)
+)
+
+provider_manager.add_transcription_provider(
+    'runpod',
+    RunPodTranscriber(api_key=config['RunPod']['api_key'],
+                      runpod_url=config['RunPod']['url'],
+                      download_listener=download_listener)
+)
+
+provider_manager.add_translation_provider(
+    'deepl',
+    DeepLTranslator(api_key=config['DeepL']['api_key'])
+)
 
 payment_token = config['Payments']['default_token']
 ptb_instance = ApplicationBuilder().token(config['Telegram']['bot_token']).build()
 
 register_all(client=client,
              db_connector= dbConnector,
-             genai_connector= genai_connector,
-             translator= translator,
-             runpod_connector= runpod_connector,
+             provider_manager= provider_manager,
              ptb_instance= ptb_instance,
              payment_token= payment_token)
 
