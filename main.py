@@ -62,7 +62,7 @@ provider_manager.add_translation_provider(
 if config['Local']['use_local_whisper'] == 'True':
     provider_manager.add_transcription_provider(
         'local_whisper',
-        LocalWhisperTranscriber('tiny')
+        LocalWhisperTranscriber(config['Local']['model_size'])
     )
 
 payment_token = config['Payments']['default_token']
