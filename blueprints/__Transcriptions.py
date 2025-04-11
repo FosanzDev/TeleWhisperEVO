@@ -37,6 +37,8 @@ class __Transcriptions:
                     await event.reply('Reply and click -> /tw_transcribe to transcribe anything!')
                 else:
                     if reply_message.media:
+                        provider_key: str = db_connector.get_user_transcription_provider(event.message.sender_id)
+
                         if telethon.utils.is_audio(reply_message.media):
                             status_message = await client.send_message(event.chat_id, parse_mode='html',
                                                                   message='<em>Receiving file...</em>')
@@ -46,8 +48,7 @@ class __Transcriptions:
                             await self.transcribe(event=event,
                                                   media_message=reply_message,
                                                   status_message=status_message,
-                                                  #TODO: Add more providers
-                                                  provider_key='local_whisper',
+                                                  provider_key=provider_key,
                                                   file_path=file_path,
                                                   group=True)
 
@@ -60,6 +61,8 @@ class __Transcriptions:
             if event.message.media:
                 if telethon.utils.is_audio(event.message.media):
                     if event.is_private:
+                        provider_key: str = db_connector.get_user_transcription_provider(event.message.sender_id)
+
                         status_message = await client.send_message(event.chat_id, parse_mode='html',
                                                                     message='<em>Receiving file...</em>')
 
@@ -68,8 +71,7 @@ class __Transcriptions:
                         await self.transcribe(event=event,
                                               media_message=event.message,
                                               status_message=status_message,
-                                              #TODO: Add more provider keys
-                                              provider_key='local_whisper',
+                                              provider_key=provider_key,
                                               file_path=file_path,
                                               group=False)
 

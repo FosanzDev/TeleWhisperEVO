@@ -22,8 +22,8 @@ class __Translations:
 
         async def __callback_translate(update: Update, context: ContextTypes.DEFAULT_TYPE):
             query = update.callback_query  # No possibility for the message to be MaybeInaccessibleMessage
+            provider_key = self.db_connector.get_user_translation_provider(str(query.from_user.id))
             lang = query.data.split('_')[-1]
-            provider_key = 'deepl'
             try:
                 translator = provider_manager.get_translation_provider(provider_key)
             except ProviderException:
@@ -104,7 +104,7 @@ class __Translations:
         ptb_instance.add_handler(CallbackQueryHandler(__callback_pagechange, 'page_trans_*', block=False))
 
 
-async def assign_translation_possibility(self,
+async def assign_translation_possibility(self: __Translations,
                                          lang: str,
                                          chat_id: int,
                                          message_id: int):
