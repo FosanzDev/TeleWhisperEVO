@@ -83,5 +83,5 @@ register_all(client=client,
 
 if __name__ == '__main__':
     download_listener.run_in_thread()
-    ptb_instance.run_polling(poll_interval=2)
+    ptb_instance.run_polling(poll_interval=1)
     asyncio.get_event_loop().run_until_complete(client.run_until_disconnected())
