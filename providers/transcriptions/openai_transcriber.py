@@ -15,3 +15,6 @@ class OpenAITranscriber(TranscriptionProvider):
             file=open(audio_file, "rb"),
             response_format="text"
         )
+
+    async def get_label(self) -> str:
+        return "OpenAI API -> whisper-1"

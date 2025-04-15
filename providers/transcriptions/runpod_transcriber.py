@@ -63,3 +63,6 @@ class RunPodTranscriber(TranscriptionProvider):
                     elif job_status["status"] in ["FAILED", "CANCELLED", "TIMED_OUT"]:
                         raise Exception(f"Job failed with status {job_status['status']}")
                     await asyncio.sleep(5)
+
+    async def get_label(self) -> str:
+        return "Serverless -> large-v3"
