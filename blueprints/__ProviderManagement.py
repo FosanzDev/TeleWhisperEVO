@@ -1,6 +1,4 @@
-from typing import Any, Coroutine
-
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.ext import Application, ContextTypes, CommandHandler, CallbackQueryHandler
 from telethon import TelegramClient
 
@@ -95,5 +93,4 @@ def get_provider_buttons(with_callback: str,
     if nav_buttons:
         buttons.append(nav_buttons)  # Append navigation buttons as a new row
 
-    print(f"Buttons: {buttons}")
     return buttons

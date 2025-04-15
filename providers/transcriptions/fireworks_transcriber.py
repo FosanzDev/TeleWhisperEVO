@@ -22,4 +22,4 @@ class FireworksTranscriber(TranscriptionProvider):
             return response.json()["text"]
 
     async def get_label(self) -> str:
-        return "FireworksAI - whisper-v3-turbo"
+        return "whisper-v3-turbo - FireworksAI"

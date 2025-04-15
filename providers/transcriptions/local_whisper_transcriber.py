@@ -20,4 +20,4 @@ class LocalWhisperTranscriber(TranscriptionProvider):
         return transcript["text"]
 
     async def get_label(self) -> str:
-        return "Local Whisper -> " + self.model_size
+        return  self.model_size + " - Local Whisper"

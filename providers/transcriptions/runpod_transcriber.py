@@ -65,4 +65,4 @@ class RunPodTranscriber(TranscriptionProvider):
                     await asyncio.sleep(5)
 
     async def get_label(self) -> str:
-        return "Serverless -> large-v3"
+        return "large-v3 - RunPod Serverless"

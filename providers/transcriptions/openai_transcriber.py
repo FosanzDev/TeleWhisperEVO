@@ -17,4 +17,4 @@ class OpenAITranscriber(TranscriptionProvider):
         )
 
     async def get_label(self) -> str:
-        return "OpenAI API -> whisper-1"
+        return "whisper-1 - OpenAI API"
