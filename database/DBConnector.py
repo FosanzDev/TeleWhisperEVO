@@ -147,9 +147,21 @@ class DBConnector:
         )
         return result[0] if result else None
 
+    def set_user_translation_provider(self, user_id: str, provider: str):
+        self.execute_query(
+            "UPDATE users SET translation_provider = %s WHERE user_id = %s;",
+            (provider, user_id)
+        )
+
     def get_user_transcription_provider(self, user_id: str) -> str:
          result =  self.fetch_query(
             "SELECT transcription_provider FROM users WHERE user_id = %s;",
             (user_id,)
         )
          return result[0] if result else None
+
+    def set_user_transcription_provider(self, user_id: str, provider: str):
+        self.execute_query(
+            "UPDATE users SET transcription_provider = %s WHERE user_id = %s;",
+            (provider, user_id)
+        )

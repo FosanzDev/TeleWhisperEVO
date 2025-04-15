@@ -8,6 +8,7 @@ from telegram.ext import ApplicationBuilder
 from blueprints import register_all
 from file_manipulation import DownloadListener
 from providers import ProviderManager
+from providers.transcriptions.fireworks_transcriber import FireworksTranscriber
 from providers.transcriptions.local_whisper_transcriber import LocalWhisperTranscriber
 from providers.transcriptions.runpod_transcriber import RunPodTranscriber
 
@@ -52,6 +53,12 @@ provider_manager.add_transcription_provider(
     RunPodTranscriber(api_key=config['RunPod']['api_key'],
                       runpod_url=config['RunPod']['url'],
                       download_listener=download_listener)
+)
+
+provider_manager.add_transcription_provider(
+    'fireworks',
+    FireworksTranscriber(api_key=config['FireworksAI']['api_key'],
+                         service_url=config['FireworksAI']['url'])
 )
 
 provider_manager.add_translation_provider(

@@ -25,3 +25,10 @@ class ProviderManager:
         try: return self.translation_providers[provider_name]
 
         except KeyError: raise ProviderException(f"Provider {provider_name} not found")
+
+    async def get_transcription_providers_labels(self) -> dict[str, str]:
+        provider_list: dict[str, str] = {}
+        for provider in self.transcription_providers.keys():
+            provider_list[provider] = await self.transcription_providers[provider].get_label()
+
+        return provider_list
