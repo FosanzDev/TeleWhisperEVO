@@ -18,28 +18,44 @@ jobs:
 
     - name: Create env.ini file
       run: |
-        echo "[Telegram]" > env.ini
-        echo "api_id=${{ secrets.TELEGRAM_API_ID }}" >> env.ini
-        echo "api_hash=${{ secrets.TELEGRAM_API_HASH }}" >> env.ini
-        echo "bot_token=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> env.ini
-        echo "[Database]" >> env.ini
-        echo "host=${{ secrets.DATABASE_HOST }}" >> env.ini
-        echo "database=${{ secrets.DATABASE_NAME }}" >> env.ini
-        echo "port=${{ secrets.DATABASE_PORT }}" >> env.ini
-        echo "username=${{ secrets.DATABASE_USERNAME }}" >> env.ini
-        echo "password=${{ secrets.DATABASE_PASSWORD }}" >> env.ini
-        echo "[OpenAI]" >> env.ini
-        echo "api_key=${{ secrets.OPENAI_API_KEY }}" >> env.ini
-        echo "[DeepL]" >> env.ini
-        echo "api_key=${{ secrets.DEEPL_API_KEY }}" >> env.ini
-        echo "[RunPod]" >> env.ini
-        echo "api_key=${{ secrets.RUNPOD_API_KEY }}" >> env.ini
-        echo "url=${{ secrets.RUNPOD_URL }}" >> env.ini
-        echo "[Payments]" >> env.ini
-        echo "default_token=${{ secrets.PAYMENTS_DEFAULT_TOKEN }}" >> env.ini
-        echo "[Downloads]" >> env.ini
-        echo "host=${{ secrets.VPS_HOST }}" >> env.ini
-        echo "port=${{ secrets.DOWNLOADS_PORT }}" >> env.ini
+        cat <<EOL > env.ini
+        [Telegram]
+        api_id=${{ secrets.TELEGRAM_API_ID }}
+        api_hash=${{ secrets.TELEGRAM_API_HASH }}
+        bot_token=${{ secrets.TELEGRAM_BOT_TOKEN }}
+        
+        [Database]
+        host=${{ secrets.DATABASE_HOST }}
+        database=${{ secrets.DATABASE_NAME }}
+        port=${{ secrets.DATABASE_PORT }}
+        username=${{ secrets.DATABASE_USERNAME }}
+        password=${{ secrets.DATABASE_PASSWORD }}
+        
+        [OpenAI]
+        api_key=${{ secrets.OPENAI_API_KEY }}
+        
+        [Local]
+        use_local_whisper=True
+        model_size=small
+        
+        [DeepL]
+        api_key=${{ secrets.DEEPL_API_KEY }}
+        
+        [FireworksAI]
+        api_key=${{ secrets.FIREWORKSAI_API_KEY }}
+        url=${{ secrets.FIREWORKSAI_URL }}
+        
+        [RunPod]
+        api_key=${{ secrets.RUNPOD_API_KEY }}
+        url=${{ secrets.RUNPOD_URL }}
+        
+        [Payments]
+        default_token=${{ secrets.PAYMENTS_DEFAULT_TOKEN }}
+        
+        [Downloads]
+        host=${{ secrets.VPS_HOST }}
+        port=${{ secrets.DOWNLOADS_PORT }}
+        EOL
 
     - name: Build Docker image
       run: |

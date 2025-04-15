@@ -9,7 +9,10 @@ class DBConnector:
         self.database = database
         self.username = username
         self.password = password
+        self.conn = None
+        self.cursor = None
         self.connect()
+
 
     def connect(self):
         self.conn = psycopg2.connect(
@@ -25,48 +28,9 @@ class DBConnector:
 
     def __init_db(self):
         try:
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS users ("
-                "user_id INT PRIMARY KEY,"
-                "user_name TEXT,"
-                "balance INT DEFAULT 0,"
-                "superuser BOOLEAN DEFAULT FALSE,"
-                "admin BOOLEAN DEFAULT FALSE,"
-                "banned BOOLEAN DEFAULT FALSE,"
-                "language TEXT DEFAULT 'none'"
-                ");")
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS actions ("
-                "action_id SERIAL PRIMARY KEY,"
-                "user_id INT,"
-                "action TEXT,"
-                "length INT,"
-                "cost INT,"
-                "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                "FOREIGN KEY (user_id) REFERENCES users(user_id)"
-                ");")
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS transactions ("
-                "transaction_id SERIAL PRIMARY KEY,"
-                "user_id INT,"
-                "amount INT,"
-                "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                "FOREIGN KEY (user_id) REFERENCES users(user_id)"
-                ");")
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS errors ("
-                "error_id UUID PRIMARY KEY,"
-                "user_id INT,"
-                "action TEXT,"
-                "error TEXT,"
-                "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                "FOREIGN KEY (user_id) REFERENCES users(user_id)"
-                ");")
-            self.cursor.execute(
-                "CREATE TABLE IF NOT EXISTS languages ("
-                "language TEXT PRIMARY KEY,"
-                "name TEXT"
-                ");")
+            with open('database/init.sql', 'r') as file:
+                self.cursor.execute(file.read())
+
             for lang in languages.keys():
                 if lang == 'none':
                     continue
@@ -174,4 +138,30 @@ class DBConnector:
         self.execute_query(
             "UPDATE users SET language = %s WHERE user_id = %s;",
             (language, user_id)
+        )
+
+    def get_user_translation_provider(self, user_id: str) -> str:
+        result = self.fetch_query(
+            "SELECT translation_provider FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+        return result[0] if result else None
+
+    def set_user_translation_provider(self, user_id: str, provider: str):
+        self.execute_query(
+            "UPDATE users SET translation_provider = %s WHERE user_id = %s;",
+            (provider, user_id)
+        )
+
+    def get_user_transcription_provider(self, user_id: str) -> str:
+         result =  self.fetch_query(
+            "SELECT transcription_provider FROM users WHERE user_id = %s;",
+            (user_id,)
+        )
+         return result[0] if result else None
+
+    def set_user_transcription_provider(self, user_id: str, provider: str):
+        self.execute_query(
+            "UPDATE users SET transcription_provider = %s WHERE user_id = %s;",
+            (provider, user_id)
         )

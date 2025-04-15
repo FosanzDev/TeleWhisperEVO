@@ -1,11 +1,12 @@
 import deepl
+from . import TranslationProvider
 
-class Translator:
+class DeepLTranslator(TranslationProvider):
     def __init__(self, api_key):
         self.api_key = api_key
         self.translator = deepl.Translator(self.api_key)
 
-    async def translate(self, text, target_lang) -> str:
+    async def translate(self, text, target_lang, source_language: str = None) -> str:
         try:
             result = self.translator.translate_text(text, target_lang=target_lang)
             return result.text
