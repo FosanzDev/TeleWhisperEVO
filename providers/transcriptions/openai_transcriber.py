@@ -5,10 +5,13 @@ from . import TranscriptionProvider
 
 class OpenAITranscriber(TranscriptionProvider):
 
-    def __init__(self, api_key, debug=False):
-        self.debug = debug
+    def __init__(self, api_key):
         self.api_key = api_key
         self.client = AsyncOpenAI(api_key=api_key)
 
     async def transcribe(self, audio_file: str) -> str:
-        raise NotImplementedError
+        return await self.client.audio.transcriptions.create(
+            model="whisper-1",
+            file=open(audio_file, "rb"),
+            response_format="text"
+        )

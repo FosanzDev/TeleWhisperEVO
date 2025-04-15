@@ -44,7 +44,7 @@ download_listener = DownloadListener(host_ip=config['Downloads']['host'],
 provider_manager = ProviderManager()
 provider_manager.add_transcription_provider(
     'openai',
-    OpenAITranscriber(api_key=config['OpenAI']['api_key'], debug=DEBUG)
+    OpenAITranscriber(api_key=config['OpenAI']['api_key'])
 )
 
 provider_manager.add_transcription_provider(
