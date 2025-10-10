@@ -53,7 +53,7 @@ pyasn1==0.6.1
 pydantic==2.11.3
 pydantic_core==2.33.1
 pydub==0.25.1
-python-telegram-bot==22.0
+python-telegram-bot
 regex==2024.11.6
 requests==2.32.3
 rsa==4.9
